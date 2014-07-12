@@ -14,19 +14,22 @@ struct song
     buffer<unsigned short>* melody,*tempo;
     int cur_note;
     unsigned long noteTime,noteDuration,pauseBetweenNotes;
-    bool playNote;
+    bool playNote,played;
 
     uint8_t action;
 
     song(buffer<unsigned short>* tmelody,buffer<unsigned short>* ttemp)
     {
+#ifdef ARDUSIM
+        printf("Buffer sizes: %d %d\n",tmelody->getLength(),ttemp->getLength());
+#endif // ARDUSIM
         melody=tmelody;
         tempo=ttemp;
         cur_note=0;
         playNote=true;
+        played=false;
         noteTime=0;
         noteDuration=0;
-
         action=0;
     }
 
@@ -48,38 +51,44 @@ struct song
 
     void playAsync(int musicPin)
     {
-        if(playNote)
+        if(!played)
         {
-            if(cur_note>=melody->getLength())
-                cur_note=0;
+            if(playNote)
+            {
+                if(cur_note>=melody->getLength())
+                {
+                    cur_note=0;
+                    played=true;
+                }
 
-            noteDuration = floor(1000.0/(float)tempo->get(cur_note));
-            if(noteTime==0)
-            {
-                noteTime=millis()+noteDuration;
+                noteDuration = floor(1000.0/(float)tempo->get(cur_note));
+                if(noteTime==0)
+                {
+                    noteTime=millis()+noteDuration;
+                }
+                if(millis()>=noteTime)
+                {
+                    playNote=false;
+                    noteTime=0;
+                    return;
+                }
+                tone(musicPin, melody->get(cur_note),noteDuration);
             }
-            if(millis()>=noteTime)
+            else
             {
-                playNote=false;
-                noteTime=0;
-                return;
-            }
-            tone(musicPin, melody->get(cur_note),noteDuration);
-        }
-        else
-        {
-            pauseBetweenNotes = ceil((float)noteDuration * 1.30);
-            if(noteTime==0)
-            {
-                noteTime=millis()+pauseBetweenNotes;
-            }
-            if(millis()>=noteTime)
-            {
-                playNote=true;
-                noteTime=0;
-                cur_note++;
-                tone(musicPin, 0,noteDuration);
-                return;
+                pauseBetweenNotes = ceil((float)noteDuration * 1.30);
+                if(noteTime==0)
+                {
+                    noteTime=millis()+pauseBetweenNotes;
+                }
+                if(millis()>=noteTime)
+                {
+                    playNote=true;
+                    noteTime=0;
+                    cur_note++;
+                    tone(musicPin, 0,noteDuration);
+                    return;
+                }
             }
         }
     }

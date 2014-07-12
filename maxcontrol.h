@@ -126,7 +126,8 @@ public:
         digitalWrite(_loadPin,HIGH);
     }
 
-    void draw(screenBuffer<int>* buf)
+    template<typename T>
+    void draw(screenBuffer<T>* buf)
     {
         if(drawFrame)
         {
