@@ -659,6 +659,7 @@
 		<Unit filename="buffers.h" />
 		<Unit filename="maxcontrol.h" />
 		<Unit filename="pitches.h" />
+		<Unit filename="res_sfx.h" />
 		<Unit filename="sounds.h" />
 		<Extensions>
 			<code_completion />

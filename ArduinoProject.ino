@@ -5,6 +5,9 @@ static bool drawFrame=true;
 #include "buffers.h"
 #include "maxcontrol.h"
 #include "sounds.h"
+#include "tune.h"
+
+#include "res_sfx.h"
 
 #ifdef ARDUSIM
 #include <iostream>
@@ -32,19 +35,26 @@ struct snakeBodypart
 /// //////////////
 /// SOME GLOBALS
 /// //////////////
-screenBuffer<unsigned int> *buf;
+screenBuffer<unsigned short> *buf;
 maxController *maxer;
 
 buffer<snakeBodypart> *snake;
-screenBuffer<unsigned int> *sprite;
+screenBuffer<unsigned short> *sprite;
 
 int x,y,ox,oy,xd,yd;
 int ax,ay,ak;
 song *tune;
+streamableSound *snd;
 bool playSounds;
 /// ////////////
 ///
 /// ////////////
+
+int freeRam () {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
 
 void setup()
 {
@@ -60,36 +70,20 @@ void setup()
 #ifdef ARDUSIM
     printf("Size of melody: %d Tempo: %d\n",sizeof(tune0),sizeof(tempo0));
 #endif // ARDUSIM
-    buf=new screenBuffer<unsigned int>(8,8);
-    //tune=new song(new buffer<int>(new data<int>(sizeof(overworld_theme),overworld_theme)),new buffer<int>(new data<int>(sizeof(overworld_theme_tempo),overworld_theme_tempo)));
-    tune=new song(new buffer<unsigned short>(new memory_block<unsigned short>(sizeof(underworld_melody),underworld_melody)),new buffer<unsigned short>(new memory_block<unsigned short>(sizeof(underworld_tempo),underworld_tempo)));
-    //tune=new song(new buffer(new data(sizeof(cocacola_melody),cocacola_melody)),new buffer(new data(sizeof(cocacola_tempo),cocacola_tempo)));
-    //tune=new song(new buffer<unsigned short>(new memory_block<unsigned short>(sizeof(tune0),tune0)),new buffer<unsigned short>(new memory_block<unsigned short>(sizeof(tempo0),tempo0)));
-    //tune=new song(tune1,sizeof(tune1)/sizeof(tune1[0]),tempo1,sizeof(tempo1)/sizeof(tempo1[0]));
-    buf->set(0,0,1);
-    buf->set(7,0,1);
-    buf->set(0,7,1);
-    buf->set(7,7,1);
+    buf=new screenBuffer<unsigned short>(8,8);
     xActionTrigger(0,1);
     xActionTrigger(1,1);
     xActionTrigger(2,1);
     playSounds=true;
 
-    buffer<int> *tbuf=new buffer<int>(2);
-    tbuf->print();
-    tbuf->push_back(10);
-    tbuf->print();
-    tbuf->clear();
-    tbuf->push_front(10);
-    tbuf->print();
-
-
-    sprite=new screenBuffer<unsigned int>(3,3);
+    sprite=new screenBuffer<unsigned short>(3,3);
     sprite->set(0,1,1);
     sprite->set(1,1,1);
     sprite->set(2,1,1);
     sprite->set(1,0,1);
     sprite->set(1,2,1);
+
+    snd=new streamableSound(13,underworld_melody,sizeof(underworld_melody),underworld_tempo,sizeof(underworld_tempo),true);
 }
 
 void updateLoop()
@@ -129,7 +123,8 @@ void renderLoop()
 
 void soundLoop()
 {
-    tune->playAsync(13);
+    snd->playAsync();
+    //tune->playAsync(13);
 }
 
 FunctionPointer xActions[] = {updateLoop,renderLoop,soundLoop};
@@ -155,18 +150,14 @@ void loop()
     if(millis()>=tick+1000)
     {
         tick=millis();
+        Serial.print(F("CYCLE TIME "));
         Serial.println(end-start);
+        Serial.print(F("FREE RAM "));
+        Serial.println(freeRam());
+        Serial.print(F("USED RAM "));
+        Serial.println(2048-freeRam());
+        Serial.println();
     }
-//    tune->playAsync(13);
-//    if(millis()>renderClk)
-//    {
-//        renderClk=millis()+60;
-//        buf->get(0,0)==1?buf->set(0,0,0):buf->set(0,0,1);
-//    }
-////    buf->set(x,y,1);
-//
-//    maxer->draw(buf);
-////    buf->set(x,y,0);
 }
 
 
