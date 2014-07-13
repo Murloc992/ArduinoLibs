@@ -1,7 +1,7 @@
 #ifndef RES_SFX_H_INCLUDED
 #define RES_SFX_H_INCLUDED
 
-unsigned short underworld_melody[] PROGMEM = {
+const unsigned short underworld_melody[] PROGMEM = {
   NOTE_C4, NOTE_C5, NOTE_A3, NOTE_A4,
   NOTE_AS3, NOTE_AS4, 0,
   0,
@@ -23,7 +23,7 @@ unsigned short underworld_melody[] PROGMEM = {
   0, 0, 0
 };
 //Underwolrd tempo
-unsigned short underworld_tempo[] PROGMEM = {
+const unsigned short underworld_tempo[] PROGMEM = {
   12, 12, 12, 12,
   12, 12, 6,
   3,

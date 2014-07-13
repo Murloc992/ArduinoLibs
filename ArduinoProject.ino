@@ -5,7 +5,6 @@ static bool drawFrame=true;
 #include "buffers.h"
 #include "maxcontrol.h"
 #include "sounds.h"
-#include "tune.h"
 
 #include "res_sfx.h"
 

@@ -4,12 +4,13 @@
 
 struct streamableSound
 {
-    unsigned short* melody,*tempo;
-    unsigned short melody_len,tempo_len,cur_note,noteDuration,pauseBetweenNotes,noteTime;
+    const unsigned short* melody,*tempo;
+    unsigned short melody_len,tempo_len,cur_note;
+    unsigned long noteDuration,pauseBetweenNotes,noteTime;
     unsigned char musicPin;
     bool loop,played,playNote;
 
-    streamableSound(unsigned char mpin,unsigned short *bufmel,unsigned short lenmel,unsigned short *buftmp,unsigned short lentmp,bool loop)
+    streamableSound(unsigned char mpin,const unsigned short *bufmel,unsigned short lenmel,const unsigned short *buftmp,unsigned short lentmp,bool loop)
     {
         melody=bufmel;
         melody_len=lenmel;
@@ -18,7 +19,7 @@ struct streamableSound
         this->loop=loop;
         played=false;
         playNote=true;
-        cur_note=0;
+        cur_note=noteDuration=pauseBetweenNotes=noteTime=0;
         musicPin=mpin;
     }
 
@@ -32,7 +33,7 @@ struct streamableSound
                 played=true;
                 return;
             }
-            noteDuration = floor(1000.0/(float)pgm_read_word_near(tempo+cur_note));
+            noteDuration = floor(1000/(unsigned short)pgm_read_word(&tempo[cur_note]));
             if(noteTime==0)
             {
                 noteTime=millis()+noteDuration;
@@ -43,7 +44,7 @@ struct streamableSound
                 noteTime=0;
                 return;
             }
-            tone(musicPin, pgm_read_word_near(melody+cur_note),noteDuration);
+            tone(musicPin, (unsigned short)pgm_read_word(&melody[cur_note]),noteDuration);
         }
         else
         {
