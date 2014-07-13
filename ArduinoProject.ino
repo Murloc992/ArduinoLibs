@@ -5,6 +5,7 @@ static bool drawFrame=true;
 #include "buffers.h"
 #include "maxcontrol.h"
 #include "sounds.h"
+#include "snake.h"
 
 #include "res_sfx.h"
 
@@ -19,16 +20,11 @@ void xActionTrigger(int id=0, int action=0)
     xActionsFlags[id] = action;
 }
 
-#define LEFT    0
-#define UP      1
-#define RIGHT   2
-#define DOWN    3
-
 struct snakeBodypart
 {
-    int xpos;
-    int ypos;
-    int direction;
+    unsigned short xpos;
+    unsigned short ypos;
+    unsigned short direction;
 };
 
 /// //////////////
@@ -36,8 +32,6 @@ struct snakeBodypart
 /// //////////////
 screenBuffer<unsigned short> *buf;
 maxController *maxer;
-
-buffer<snakeBodypart> *snake;
 screenBuffer<unsigned short> *sprite;
 
 int x,y,ox,oy,xd,yd;
@@ -45,17 +39,12 @@ int ax,ay,ak;
 song *tune;
 streamableSound *snd;
 bool playSounds;
+snake* snk;
 /// ////////////
 ///
 /// ////////////
 
-int freeRam () {
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}
-
-void setup()
+void setup ()
 {
     x=4;
     y=2;
@@ -66,9 +55,7 @@ void setup()
     pinMode(13,OUTPUT);
 
     Serial.begin(9600);
-#ifdef ARDUSIM
-    printf("Size of melody: %d Tempo: %d\n",sizeof(tune0),sizeof(tempo0));
-#endif // ARDUSIM
+
     buf=new screenBuffer<unsigned short>(8,8);
     xActionTrigger(0,1);
     xActionTrigger(1,1);
@@ -83,6 +70,7 @@ void setup()
     sprite->set(1,2,1);
 
     snd=new streamableSound(13,underworld_melody,sizeof(underworld_melody),underworld_tempo,sizeof(underworld_tempo),true);
+    snk=new snake(4,4,2);
 }
 
 void updateLoop()
@@ -93,31 +81,26 @@ void updateLoop()
     //    xActionTrigger(2,playSounds);
     //    ak=1024;
     //}
-    if(drawFrame)
-    {
-        ax=analogRead(0);
+    ax=analogRead(0);
         ay=analogRead(1);
         ak=analogRead(2);
 
-        ox=x;
-        oy=y;
-        if(ax>544)x--;
-        else if(ax<478)x++;
-        if(ay>544)y--;
-        else if(ay<478)y++;
-        if(x<=0)x=0;
-        if(x+2>=7)x=7-2;
-        if(y<=0)y=0;
-        if(y+2>=7)y=7-2;
+        if(ax>544&&snk->dir!=RIGHT)snk->dir=LEFT;
+        else if(ax<478&&snk->dir!=LEFT)snk->dir=RIGHT;
+        else if(ay>544&&snk->dir!=DOWN)snk->dir=UP;
+        else if(ay<478&&snk->dir!=UP)snk->dir=DOWN;
+    if(drawFrame)
+    {
+        snk->update();
+
     }
 
 }
 
 void renderLoop()
 {
-    buf->reset();
-    buf->blit(x,y,sprite);
     maxer->draw(buf);
+    snk->draw(buf);
 }
 
 void soundLoop()

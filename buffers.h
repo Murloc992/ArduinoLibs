@@ -1,6 +1,16 @@
 #ifndef BUFFERS_H_INCLUDED
 #define BUFFERS_H_INCLUDED
 
+#ifndef ARDUSIM
+int freeRam () {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
+#else
+int freeRam(){return -1;}
+#endif
+
 template<typename T>
 struct memory_block
 {
