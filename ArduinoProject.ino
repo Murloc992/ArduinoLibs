@@ -30,9 +30,9 @@ struct snakeBodypart
 /// //////////////
 /// SOME GLOBALS
 /// //////////////
-screenBuffer<unsigned short> *buf;
+screenBuffer<unsigned char> *buf;
 maxController *maxer;
-screenBuffer<unsigned short> *sprite;
+screenBuffer<unsigned char> *sprite;
 
 int x,y,ox,oy,xd,yd;
 int ax,ay,ak;
@@ -56,13 +56,13 @@ void setup ()
 
     Serial.begin(9600);
 
-    buf=new screenBuffer<unsigned short>(8,8);
+    buf=new screenBuffer<unsigned char>(24,16);
     xActionTrigger(0,1);
     xActionTrigger(1,1);
     xActionTrigger(2,1);
     playSounds=true;
 
-    sprite=new screenBuffer<unsigned short>(3,3);
+    sprite=new screenBuffer<unsigned char>(3,3);
     sprite->set(0,1,1);
     sprite->set(1,1,1);
     sprite->set(2,1,1);

@@ -660,6 +660,7 @@
 		<Unit filename="maxcontrol.h" />
 		<Unit filename="pitches.h" />
 		<Unit filename="res_sfx.h" />
+		<Unit filename="snake.h" />
 		<Unit filename="sounds.h" />
 		<Extensions>
 			<code_completion />

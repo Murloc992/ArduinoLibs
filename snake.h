@@ -37,6 +37,7 @@ struct snake
         apple_x=0;
         apple_y=0;
         locateApple();
+        dir=LEFT;
     }
 
     void checkCollision() {
@@ -133,7 +134,7 @@ struct snake
         checkCollision();
     }
 
-    void draw(screenBuffer<unsigned short>* buf)
+    void draw(screenBuffer<unsigned char>* buf)
     {
         if(inGame)
         {
